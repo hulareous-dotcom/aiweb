@@ -3,733 +3,630 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tổng quan Chatbot AI 24/7</title>
+    <title>Chatbot AI 24/7 & Hỗ trợ</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+            background-color: #f3f4f6; /* Gray 100 */
         }
-        .nav-button {
-            transition: all 0.3s ease;
-            @apply px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200;
+
+        /* Navigation Tabs */
+        .nav-item {
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            color: #4b5563; /* Gray 600 */
+            transition: all 0.2s;
+            white-space: nowrap;
         }
-        .nav-button.active {
-            @apply bg-blue-600 text-white hover:bg-blue-700;
+        .nav-item:hover {
+            background-color: #e5e7eb; /* Gray 200 */
+            color: #1f2937; /* Gray 800 */
         }
-        .content-section {
+        .nav-item.active {
+            background-color: #2563eb; /* Blue 600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Content Sections */
+        .section-content {
             display: none;
-            animation: fadeIn 0.5s ease-in-out;
-            min-height: 80vh; /* Ensure sections have height */
+            animation: slideUp 0.4s ease-out;
         }
-        .content-section.active {
+        .section-content.active {
             display: block;
         }
-        @keyframes fadeIn {
+        @keyframes slideUp {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            height: 300px;
-            max-height: 350px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .stat-card {
-            @apply bg-white p-6 rounded-lg shadow-lg border border-gray-100;
-        }
-        .flow-step {
-            @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center cursor-pointer hover:shadow-md hover:border-blue-400 transition;
-        }
-        .flow-step.active {
-            @apply bg-blue-100 border-blue-400 ring-2 ring-blue-300;
-        }
-        .app-tab {
-            @apply w-full text-left px-4 py-3 rounded-md font-medium text-gray-700 hover:bg-gray-100 transition;
-        }
-        .app-tab.active {
-            @apply bg-blue-100 text-blue-700;
-        }
 
-        /* --- CHATBOX STYLES (FROM aihotro.html) --- */
-        .chat-container-embedded {
-            height: 75vh; /* Shorter for embedding */
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border-radius: 1.5rem;
-            overflow: hidden;
-            background-color: white;
-        }
-        #chat-window {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-        }
-        .message-chat {
+        /* Chat Specific Styles */
+        .chat-msg {
             max-width: 80%;
-            margin-bottom: 1rem;
             padding: 0.75rem 1rem;
-            border-radius: 1.25rem;
-            line-height: 1.4;
+            border-radius: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+            word-wrap: break-word;
         }
-        .user-message-chat {
-            background-color: #3b82f6; /* Blue 500 */
+        .chat-msg-user {
+            background-color: #2563eb;
             color: white;
             align-self: flex-end;
             border-bottom-right-radius: 0.25rem;
         }
-        .ai-message-chat {
-            background-color: #e5e7eb; /* Gray 200 */
-            color: #1f2937; /* Gray 800 */
+        .chat-msg-ai {
+            background-color: #f3f4f6;
+            color: #1f2937;
             align-self: flex-start;
+            border: 1px solid #e5e7eb;
             border-bottom-left-radius: 0.25rem;
         }
-        /* Custom scrollbar for better look */
-        #chat-window::-webkit-scrollbar {
-            width: 6px;
-        }
-        #chat-window::-webkit-scrollbar-thumb {
-            background-color: #9ca3af;
-            border-radius: 3px;
-        }
-        .loading-dot {
-            animation: bounce 1.4s infinite ease-in-out both;
+        .typing-dot {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background-color: #9ca3af;
             border-radius: 50%;
             margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out both;
         }
-        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
-        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes bounce {
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
             0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1.0); }
+            40% { transform: scale(1); }
         }
-        /* --- END CHATBOX STYLES --- */
 
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #d1d5db;
+            border-radius: 20px;
+        }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="h-screen flex flex-col overflow-hidden">
 
-    <header class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 z-10 shadow-sm flex-none">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <h1 class="text-2xl font-bold text-blue-700">Trình khám phá: Chatbot AI 24/7</h1>
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold mr-3">AI</div>
+                    <h1 class="text-xl font-bold text-gray-900 tracking-tight">Tổng quan Chatbot AI 24/7</h1>
+                </div>
+                <div class="hidden md:block text-sm text-gray-500">
+                    Giải pháp Chăm sóc Khách hàng Tự động
+                </div>
             </div>
         </div>
     </header>
 
-    <nav class="sticky top-0 bg-white/80 backdrop-blur-md shadow-md z-10 mb-8 border-b border-gray-200">
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b border-gray-200 flex-none overflow-x-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-center space-x-2 sm:space-x-4 py-3">
-                <button id="nav-home" class="nav-button active" data-section="home">Tổng quan</button>
-                <button id="nav-benefits" class="nav-button" data-section="benefits">Lợi ích</button>
-                <button id="nav-how" class="nav-button" data-section="how">Cách thức</button>
-                <button id="nav-apps" class="nav-button" data-section="apps">Ứng dụng</button>
-                <button id="nav-challenges" class="nav-button" data-section="challenges">Thử thách</button>
-                <button id="nav-chat" class="nav-button bg-green-500 hover:bg-green-600 text-white" data-section="chat">Trò chuyện AI (Thử nghiệm)</button>
+            <div class="flex space-x-1 py-3 min-w-max">
+                <button onclick="switchTab('overview')" id="tab-overview" class="nav-item active">Tổng quan</button>
+                <button onclick="switchTab('benefits')" id="tab-benefits" class="nav-item">Lợi ích</button>
+                <button onclick="switchTab('how')" id="tab-how" class="nav-item">Cách hoạt động</button>
+                <button onclick="switchTab('apps')" id="tab-apps" class="nav-item">Ứng dụng</button>
+                <button onclick="switchTab('challenges')" id="tab-challenges" class="nav-item">Thách thức</button>
+                <button onclick="switchTab('chat')" id="tab-chat" class="nav-item flex items-center text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 font-semibold border border-blue-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                    Live Chat Demo
+                </button>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <!-- Main Content Area -->
+    <main class="flex-grow overflow-y-auto bg-gray-50 custom-scroll">
+        <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 h-full">
 
-        <!-- CONTENT SECTIONS FROM BT.HTML -->
-        <!-- 1. TỔNG QUAN -->
-        <section id="content-home" class="content-section active">
-            <div class="bg-white p-8 rounded-lg shadow-xl border border-gray-100">
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">Chatbot AI: Phục vụ Khách hàng 24/7</h2>
-                <p class="text-lg text-gray-600 mb-6">
-                    Chatbot AI (Trí tuệ nhân tạo) đã trở thành một công cụ quan trọng trong chiến lược chăm sóc khách hàng (CSKH) của nhiều doanh nghiệp. Đây là các chương trình máy tính được thiết kế để mô phỏng cuộc trò chuyện của con người, cho phép chúng tương tác, trả lời câu hỏi và giải quyết các vấn đề của khách hàng bất kỳ lúc nào, kể cả ngoài giờ hành chính.
-                </p>
-                <div class="border-t border-gray-200 pt-6">
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Kết luận</h3>
-                    <p class="text-gray-700">
-                        Chatbot AI đã phát triển từ một tính năng "cho vui" trở thành một phần thiết yếu của hệ thống chăm sóc khách hàng hiện đại. Khả năng cung cấp hỗ trợ tức thì, liên tục 24/7 không chỉ giúp doanh nghiệp tối ưu hóa chi phí mà còn là yếu tố then chốt để nâng cao sự hài lòng và lòng trung thành của khách hàng trong một thế giới luôn "trực tuyến".
+            <!-- 1. Overview Section -->
+            <div id="content-overview" class="section-content active">
+                <div class="bg-white rounded-2xl shadow-sm p-8 border border-gray-200">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Chatbot AI: Tương lai của CSKH</h2>
+                    <p class="text-lg text-gray-600 leading-relaxed mb-6">
+                        Chatbot AI là các chương trình máy tính sử dụng Trí tuệ nhân tạo (AI), Xử lý ngôn ngữ tự nhiên (NLP) và Học máy (Machine Learning) để mô phỏng các cuộc trò chuyện giống như con người. Chúng không chỉ trả lời theo kịch bản có sẵn mà còn có khả năng hiểu ý định và ngữ cảnh.
                     </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 2. LỢI ÍCH -->
-        <section id="content-benefits" class="content-section">
-            <h2 class="text-3xl font-bold text-gray-900 mb-2 text-center">Lợi ích Chính của Chatbot AI 24/7</h2>
-            <p class="text-lg text-gray-600 mb-8 text-center">
-                Việc triển khai chatbot AI để hỗ trợ 24/7 mang lại nhiều lợi ích vượt trội. Ứng dụng này chia lợi ích thành hai nhóm chính: cải thiện trực tiếp **Trải nghiệm Khách hàng** và tăng **Hiệu quả Doanh nghiệp**.
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="stat-card">
-                    <h3 class="text-xl font-semibold text-blue-700 mb-3">Phân tích Tác động</h3>
-                    <p class="text-gray-600 mb-4">Biểu đồ này tóm tắt 6 lợi ích chính, phân loại chúng thành hai nhóm tác động cốt lõi.</p>
-                    <div class="chart-container">
-                        <canvas id="benefitsChart"></canvas>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                        <div class="p-6 bg-blue-50 rounded-xl border border-blue-100">
+                            <div class="text-blue-600 font-bold text-xl mb-2">24/7/365</div>
+                            <p class="text-gray-600 text-sm">Hoạt động không ngừng nghỉ, bất kể lễ tết hay đêm khuya.</p>
+                        </div>
+                        <div class="p-6 bg-green-50 rounded-xl border border-green-100">
+                            <div class="text-green-600 font-bold text-xl mb-2">Tức thì</div>
+                            <p class="text-gray-600 text-sm">Phản hồi khách hàng ngay lập tức, loại bỏ thời gian chờ đợi.</p>
+                        </div>
+                        <div class="p-6 bg-purple-50 rounded-xl border border-purple-100">
+                            <div class="text-purple-600 font-bold text-xl mb-2">Cá nhân hóa</div>
+                            <p class="text-gray-600 text-sm">Học hỏi từ lịch sử để đưa ra gợi ý phù hợp từng người.</p>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="space-y-6">
-                    <div class="stat-card">
-                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Số liệu Nổi bật</h4>
-                        <div class="flex justify-around items-center text-center">
-                            <div>
-                                <div class="text-4xl font-bold text-blue-600">69%</div>
-                                <p class="text-gray-600">Người tiêu dùng hài lòng<br>vì tốc độ phản hồi</p>
+            </div>
+
+            <!-- 2. Benefits Section -->
+            <div id="content-benefits" class="section-content">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Phân loại Lợi ích</h3>
+                        <div class="h-64 flex justify-center">
+                            <canvas id="benefitsChart"></canvas>
+                        </div>
+                        <p class="text-center text-sm text-gray-500 mt-4">Tỷ lệ cân bằng giữa Hiệu quả Kinh doanh và Trải nghiệm Khách hàng</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition">
+                            <h4 class="font-semibold text-blue-700">1. Tiết kiệm Chi phí</h4>
+                            <p class="text-gray-600 text-sm mt-1">Giảm chi phí nhân sự cho các tác vụ lặp lại, cho phép nhân viên tập trung vào vấn đề phức tạp.</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition">
+                            <h4 class="font-semibold text-blue-700">2. Tăng Doanh thu</h4>
+                            <p class="text-gray-600 text-sm mt-1">Chủ động chào hàng, gợi ý sản phẩm (cross-sell/up-sell) ngay trong cuộc trò chuyện.</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition">
+                            <h4 class="font-semibold text-green-700">3. Cải thiện Trải nghiệm</h4>
+                            <p class="text-gray-600 text-sm mt-1">Khách hàng không bao giờ bị bỏ rơi, luôn nhận được phản hồi ngay lập tức.</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition">
+                            <h4 class="font-semibold text-green-700">4. Thu thập Dữ liệu</h4>
+                            <p class="text-gray-600 text-sm mt-1">Ghi nhận mọi tương tác để phân tích xu hướng và nhu cầu khách hàng.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. How it Works -->
+            <div id="content-how" class="section-content">
+                <div class="bg-white rounded-2xl shadow-sm p-8 border border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-8 text-center">Quy trình Xử lý của AI</h3>
+                    
+                    <div class="relative">
+                        <!-- Flow Steps -->
+                        <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 z-0"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 relative z-10">
+                            <!-- Step 1 -->
+                            <div onclick="showStepInfo(1)" class="bg-white p-4 border-2 border-blue-500 rounded-xl cursor-pointer hover:bg-blue-50 transition text-center step-card active" id="step-1">
+                                <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold">1</div>
+                                <h4 class="font-bold text-gray-800">Nhận tin nhắn</h4>
+                                <p class="text-xs text-gray-500 mt-1">Khách hàng nhập liệu</p>
                             </div>
-                            <div>
-                                <div class="text-4xl font-bold text-blue-600">50-70%</div>
-                                <p class="text-gray-600">Tác vụ CSKH cơ bản<br>được tự động hóa</p>
+                            <!-- Step 2 -->
+                            <div onclick="showStepInfo(2)" class="bg-white p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 transition text-center step-card" id="step-2">
+                                <div class="w-10 h-10 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold">2</div>
+                                <h4 class="font-bold text-gray-800">Phân tích (NLP)</h4>
+                                <p class="text-xs text-gray-500 mt-1">Hiểu ý định & thực thể</p>
+                            </div>
+                            <!-- Step 3 -->
+                            <div onclick="showStepInfo(3)" class="bg-white p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 transition text-center step-card" id="step-3">
+                                <div class="w-10 h-10 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold">3</div>
+                                <h4 class="font-bold text-gray-800">Xử lý & Tra cứu</h4>
+                                <p class="text-xs text-gray-500 mt-1">Kết nối Database/API</p>
+                            </div>
+                            <!-- Step 4 -->
+                            <div onclick="showStepInfo(4)" class="bg-white p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 transition text-center step-card" id="step-4">
+                                <div class="w-10 h-10 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold">4</div>
+                                <h4 class="font-bold text-gray-800">Phản hồi</h4>
+                                <p class="text-xs text-gray-500 mt-1">Tạo câu trả lời tự nhiên</p>
                             </div>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Các Lợi ích Cốt lõi</h4>
-                        <ul class="grid grid-cols-2 gap-x-4 gap-y-2">
-                            <li class="flex items-center text-gray-700">
-                                <span class="text-green-500 mr-2">✔</span> Sẵn sàng 24/7/365
-                            </li>
-                            <li class="flex items-center text-gray-700">
-                                <span class="text-green-500 mr-2">✔</span> Phản hồi tức thì
-                            </li>
-                            <li class="flex items-center text-gray-700">
-                                <span class="text-green-500 mr-2">✔</span> Tiết kiệm chi phí
-                            </li>
-                            <li class="flex items-center text-gray-700">
-                                <span class="text-green-500 mr-2">✔</span> Khả năng mở rộng
-                            </li>
-                            <li class="flex items-center text-gray-700">
-                                <span class="text-green-500 mr-2">✔</span> Cải thiện trải nghiệm
-                            </li>
-                            <li class="flex items-center text-gray-700">
-                                <span class="text-green-500 mr-2">✔</span> Tăng doanh thu
-                            </li>
-                        </ul>
+
+                    <div class="mt-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
+                        <h4 class="text-lg font-bold text-blue-700 mb-2" id="step-title">Bước 1: Nhận diện đầu vào</h4>
+                        <p class="text-gray-700" id="step-desc">Hệ thống tiếp nhận văn bản hoặc giọng nói từ người dùng. Tại bước này, AI sẽ làm sạch dữ liệu (loại bỏ ký tự lạ, sửa lỗi chính tả cơ bản) để chuẩn bị cho quá trình phân tích.</p>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- 3. CÁCH THỨC HOẠT ĐỘNG -->
-        <section id="content-how" class="content-section">
-            <h2 class="text-3xl font-bold text-gray-900 mb-2 text-center">Chatbot AI Hoạt động như thế nào?</h2>
-            <p class="text-lg text-gray-600 mb-8 text-center">
-                Không giống chatbot kịch bản, chatbot AI sử dụng nhiều công nghệ tiên tiến để hiểu và phản hồi. Hãy nhấp vào từng bước dưới đây để xem chi tiết.
-            </p>
-            
-            <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mb-6">
-                <div id="how-step-nlp" class="flow-step active flex-1 w-full md:w-auto" data-key="nlp">
-                    <h4 class="font-semibold">1. Xử lý Ngôn ngữ Tự nhiên (NLP)</h4>
-                </div>
-                <div class="text-2xl font-bold text-blue-400 transform md:rotate-0">→</div>
-                <div id="how-step-ml" class="flow-step flex-1 w-full md:w-auto" data-key="ml">
-                    <h4 class="font-semibold">2. Học máy (Machine Learning)</h4>
-                </div>
-                <div class="text-2xl font-bold text-blue-400 transform md:rotate-0">→</div>
-                <div id="how-step-integration" class="flow-step flex-1 w-full md:w-auto" data-key="integration">
-                    <h4 class="font-semibold">3. Tích hợp Hệ thống</h4>
-                </div>
-                <div class="text-2xl font-bold text-blue-400 transform md:rotate-0">→</div>
-                 <div id="how-step-handoff" class="flow-step flex-1 w-full md:w-auto" data-key="handoff">
-                    <h4 class="font-semibold">4. Chuyển giao (Handoff)</h4>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-lg shadow-lg border border-gray-100 min-h-[150px]">
-                <h3 id="how-detail-title" class="text-xl font-semibold text-blue-700 mb-3"></h3>
-                <p id="how-detail-text" class="text-gray-700"></p>
-            </div>
-        </section>
-
-        <!-- 4. ỨNG DỤNG -->
-        <section id="content-apps" class="content-section">
-            <h2 class="text-3xl font-bold text-gray-900 mb-2 text-center">Ứng dụng Thực tế Phổ biến</h2>
-            <p class="text-lg text-gray-600 mb-8 text-center">
-                Chatbot AI 24/7 được áp dụng rộng rãi trong nhiều ngành. Chọn một ngành để khám phá các trường hợp sử dụng cụ thể.
-            </p>
-            
-            <div class="flex flex-col md:flex-row gap-6">
-                <div class="w-full md:w-1/4 flex flex-col space-y-2">
-                    <button id="app-tab-ecommerce" class="app-tab active" data-key="ecommerce">Thương mại điện tử</button>
-                    <button id="app-tab-banking" class="app-tab" data-key="banking">Ngân hàng & Tài chính</button>
-                    <button id="app-tab-health" class="app-tab" data-key="health">Y tế & Sức khỏe</button>
-                    <button id="app-tab-hospitality" class="app-tab" data-key="hospitality">Khách sạn & Du lịch</button>
-                    <button id="app-tab-public" class="app-tab" data-key="public">Hành chính công</button>
-                </div>
-                <div class="w-full md:w-3/4">
-                    <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-100 min-h-[250px]">
-                        <h3 id="app-detail-title" class="text-2xl font-semibold text-blue-700 mb-4"></h3>
-                        <p id="app-detail-text" class="text-gray-700 text-lg leading-relaxed"></p>
+            <!-- 4. Applications -->
+            <div id="content-apps" class="section-content">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="text-3xl mb-3">🛍️</div>
+                        <h3 class="font-bold text-lg mb-2">Thương mại điện tử</h3>
+                        <p class="text-gray-600 text-sm">Tư vấn chọn size, theo dõi đơn hàng, xử lý đổi trả tự động.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="text-3xl mb-3">🏦</div>
+                        <h3 class="font-bold text-lg mb-2">Ngân hàng</h3>
+                        <p class="text-gray-600 text-sm">Tra cứu số dư, hỗ trợ khóa thẻ khẩn cấp, tư vấn khoản vay.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="text-3xl mb-3">🏥</div>
+                        <h3 class="font-bold text-lg mb-2">Y tế</h3>
+                        <p class="text-gray-600 text-sm">Đặt lịch khám, nhắc nhở uống thuốc, tư vấn triệu chứng sơ cấp.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="text-3xl mb-3">✈️</div>
+                        <h3 class="font-bold text-lg mb-2">Du lịch</h3>
+                        <p class="text-gray-600 text-sm">Đặt vé máy bay, check-in khách sạn, gợi ý địa điểm ăn uống.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="text-3xl mb-3">📚</div>
+                        <h3 class="font-bold text-lg mb-2">Giáo dục</h3>
+                        <p class="text-gray-600 text-sm">Hỗ trợ tuyển sinh, giải đáp thủ tục nhập học, tìm kiếm khóa học.</p>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- 5. THỬ THÁCH -->
-        <section id="content-challenges" class="content-section">
-            <h2 class="text-3xl font-bold text-gray-900 mb-2 text-center">Thách thức và Hạn chế</h2>
-            <p class="text-lg text-gray-600 mb-8 text-center">
-                Mặc dù mạnh mẽ, chatbot AI vẫn có những hạn chế cần được xem xét và quản lý.
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="stat-card">
-                    <div class="text-4xl mb-3">⚠️</div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Vấn đề Phức tạp</h3>
-                    <p class="text-gray-600">Chatbot gặp khó khăn khi xử lý các vấn đề mới, độc nhất hoặc đòi hỏi sự phán đoán phức tạp mà chưa được huấn luyện.</p>
-                </div>
-                <div class="stat-card">
-                    <div class="text-4xl mb-3">🤔</div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Thiếu Cảm xúc</h3>
-                    <p class="text-gray-600">Chúng không thể hiện được sự đồng cảm thực sự, điều này rất quan trọng khi khách hàng đang tức giận hoặc thất vọng.</p>
-                </div>
-                <div class="stat-card">
-                    <div class="text-4xl mb-3">📊</div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Phụ thuộc Dữ liệu</h3>
-                    <p class="text-gray-600">Chatbot chỉ có thể trả lời dựa trên dữ liệu mà nó được "dạy". Dữ liệu đào tạo không đầy đủ hoặc lỗi thời sẽ dẫn đến câu trả lời sai.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 6. CHATBOX AI (NEW SECTION) -->
-        <section id="content-chat" class="content-section">
-            <div class="chat-container-embedded mx-auto w-full md:w-3/4">
-                <!-- Header -->
-                <header class="p-4 bg-gray-900 text-white flex items-center justify-between rounded-t-xl">
-                    <h1 class="text-xl font-bold flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                        </svg>
-                        Trò chuyện Hỗ trợ AI (v2.5)
-                    </h1>
-                    <span id="user-id-display-chat" class="text-sm bg-gray-700 py-1 px-3 rounded-full hidden sm:inline-block">ID: Đang tải...</span>
-                </header>
-
-                <!-- Chat Window -->
-                <div id="chat-window-chat" class="flex-grow overflow-y-auto p-4 flex flex-col">
-                    <div class="ai-message-chat text-sm mb-4">
-                        Chào mừng! Tôi là trợ lý AI ảo của bạn. Hãy cho tôi biết bạn cần hỗ trợ về vấn đề gì hôm nay.
-                    </div>
-                    <!-- Messages will be injected here -->
-                </div>
-
-                <!-- Input Area -->
-                <div class="p-4 border-t border-gray-200 bg-gray-50">
-                    <div id="auth-status-chat" class="text-xs text-center text-red-500 mb-2 hidden">
-                        Đang chờ kết nối cơ sở dữ liệu...
-                    </div>
-                    <form id="chat-form-chat" class="flex">
-                        <input type="text" id="message-input-chat" placeholder="Nhập tin nhắn của bạn..." class="flex-grow p-3 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" autocomplete="off" required>
-                        <button type="submit" id="send-button-chat" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-r-lg transition duration-150 flex items-center justify-center disabled:opacity-50" disabled>
-                            Gửi
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.5l1-5.5a1 1 0 011-1h2.5a1 1 0 00.992-.816l.5-4a1 1 0 00-.54-1.041z" />
+            <!-- 5. Challenges -->
+            <div id="content-challenges" class="section-content">
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-xl mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                             </svg>
-                        </button>
-                    </form>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg leading-6 font-medium text-yellow-800">Giới hạn công nghệ</h3>
+                            <p class="mt-2 text-yellow-700 text-sm">
+                                AI vẫn có thể hiểu sai các câu hỏi phức tạp, châm biếm hoặc ngôn ngữ địa phương đặc thù. Điều này có thể gây ức chế cho người dùng.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="font-bold text-gray-900 mb-2">Thiếu sự thấu cảm</h3>
+                        <p class="text-gray-600 text-sm">Robot không thể cảm nhận cảm xúc. Trong các tình huống nhạy cảm (khiếu nại gay gắt), con người vẫn xử lý tốt hơn.</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <h3 class="font-bold text-gray-900 mb-2">Bảo mật dữ liệu</h3>
+                        <p class="text-gray-600 text-sm">Việc lưu trữ lịch sử trò chuyện chứa thông tin cá nhân đòi hỏi các tiêu chuẩn bảo mật cực kỳ khắt khe.</p>
+                    </div>
+                 </div>
+            </div>
+
+            <!-- 6. Live Chat Demo (Integrated) -->
+            <div id="content-chat" class="section-content h-full flex flex-col" style="height: calc(100vh - 200px);">
+                <div class="flex-grow bg-white rounded-2xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
+                    <!-- Chat Header -->
+                    <div class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold text-lg">Hỗ trợ trực tuyến</h3>
+                            <p class="text-xs text-gray-400 flex items-center mt-1">
+                                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                Trực tuyến
+                            </p>
+                        </div>
+                        <div id="chat-status" class="text-xs bg-gray-800 px-3 py-1 rounded-full text-gray-300">
+                            Đang kết nối...
+                        </div>
+                    </div>
+
+                    <!-- Chat Messages Area -->
+                    <div id="chat-window" class="flex-grow p-6 overflow-y-auto custom-scroll bg-white">
+                        <!-- Welcome Message -->
+                        <div class="chat-msg chat-msg-ai">
+                            👋 Xin chào! Tôi là trợ lý ảo AI. Tôi có thể giúp gì cho bạn hôm nay?
+                            <br><span class="text-xs text-gray-400 mt-1 block">Vừa xong</span>
+                        </div>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="p-4 bg-gray-50 border-t border-gray-200">
+                        <form id="chat-form" class="flex gap-2">
+                            <input type="text" id="chat-input" class="flex-grow px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="Nhập câu hỏi của bạn..." autocomplete="off" disabled>
+                            <button type="submit" id="chat-send-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center" disabled>
+                                <span>Gửi</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.5l1-5.5a1 1 0 011-1h2.5a1 1 0 00.992-.816l.5-4a1 1 0 00-.54-1.041z" />
+                                </svg>
+                            </button>
+                        </form>
+                        <div id="error-message" class="text-red-500 text-xs mt-2 text-center hidden"></div>
+                    </div>
                 </div>
             </div>
-        </section>
 
+        </div>
     </main>
 
-    <footer class="text-center py-8 mt-12 border-t border-gray-200">
-        <p class="text-gray-500">Một ứng dụng tương tác dựa trên Báo cáo Tổng quan về Chatbot AI 24/7.</p>
-    </footer>
-
-    <!-- SCRIPT FOR SPA NAVIGATION AND BT.HTML CONTENT -->
+    <!-- Scripts -->
     <script>
-        // Data for BT.HTML sections
-        const howItWorksData = {
-            nlp: { title: 'Xử lý Ngôn ngữ Tự nhiên (NLP)', text: 'Giúp chatbot hiểu được ý định thực sự của khách hàng, ngay cả khi họ sử dụng ngôn ngữ đời thường, tiếng lóng, hoặc gõ sai chính tả.' },
-            ml: { title: 'Học máy (Machine Learning)', text: 'Chatbot "học hỏi" từ các cuộc tương tác trước đó để ngày càng trở nên thông minh và trả lời chính xác hơn theo thời gian.' },
-            integration: { title: 'Tích hợp Hệ thống', text: 'Chúng có thể kết nối với các hệ thống backend như CRM hoặc ERP để truy xuất thông tin cá nhân hóa (ví dụ: "Đơn hàng của tôi đang ở đâu?").' },
-            handoff: { title: 'Chuyển giao cho Con người', text: 'Khi gặp một yêu cầu quá phức tạp hoặc khách hàng tỏ ra thất vọng, chatbot sẽ tự động nhận diện và chuyển tiếp cuộc trò chuyện cho nhân viên hỗ trợ.' }
-        };
-        const appData = {
-            ecommerce: { title: 'Thương mại điện tử & Bán lẻ', text: 'Tư vấn sản phẩm, theo dõi đơn hàng, xử lý yêu cầu đổi trả, và nhắc nhở khách hàng về giỏ hàng bị bỏ quên để tăng tỷ lệ chuyển đổi.' },
-            banking: { title: 'Ngân hàng & Tài chính', text: 'Tra cứu số dư, nhắc lịch thanh toán hóa đơn, giải đáp thắc mắc về các gói dịch vụ, và hỗ trợ khóa thẻ khẩn cấp 24/7. (Ví dụ: Eximbank tại Việt Nam).' },
-            health: { title: 'Y tế & Chăm sóc sức khỏe', text: 'Hỗ trợ bệnh nhân đặt lịch khám bệnh, tự động nhắc nhở lịch uống thuốc, và cung cấp thông tin cơ bản về các triệu chứng hoặc quy trình chăm sóc.' },
-            hospitality: { title: 'Khách sạn & Du lịch', text: 'Giúp khách hàng đặt phòng, trả lời các câu hỏi thường gặp về tiện ích khách sạn, thời gian check-in/check-out, và các dịch vụ lân cận.' },
-            public: { title: 'Hành chính công', text: 'Giải đáp tự động về các chính sách, thủ tục hành chính, và các nghĩa vụ thuế. (Ví dụ: Cục Thuế TP. Hà Nội sử dụng trợ lý ảo 24/7).' }
-        };
-
-        let benefitsChartInstance = null;
-        let isChatInitialized = false;
-
-        function showSection(sectionId) {
-            const navButtons = document.querySelectorAll('.nav-button');
-            const contentSections = document.querySelectorAll('.content-section');
-
-            contentSections.forEach(section => {
-                section.classList.remove('active');
-            });
-            navButtons.forEach(button => {
-                button.classList.remove('active');
+        // --- Tab Switching Logic ---
+        function switchTab(tabId) {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
+            // Deactivate all tabs
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active');
+                el.classList.remove('bg-blue-600', 'text-white'); 
+                // Restore original classes for chat tab if needed, but simpler to reset basic style
+                if(el.id !== 'tab-chat') {
+                    // Basic reset handled by CSS removal
+                }
             });
 
-            document.getElementById(`content-${sectionId}`).classList.add('active');
-            document.getElementById(`nav-${sectionId}`).classList.add('active');
+            // Show target section
+            document.getElementById(`content-${tabId}`).classList.add('active');
+            
+            // Activate target tab
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.add('active');
 
-            // Initialize content when section is active
-            if (sectionId === 'benefits' && !benefitsChartInstance) {
-                initBenefitsChart();
+            // Special init for Chart if not loaded
+            if (tabId === 'benefits' && !window.chartInitialized) {
+                initChart();
             }
-            if (sectionId === 'chat' && !isChatInitialized) {
-                initChatboxModule();
+
+            // Special init for Chat if not loaded
+            if (tabId === 'chat' && !window.chatInitialized) {
+                initChatModule();
             }
         }
 
-        function initBenefitsChart() {
+        // --- Chart Logic ---
+        function initChart() {
             const ctx = document.getElementById('benefitsChart').getContext('2d');
-            benefitsChartInstance = new Chart(ctx, {
+            new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Trải nghiệm Khách hàng (3)', 'Hiệu quả Doanh nghiệp (3)'],
+                    labels: ['Trải nghiệm Khách hàng', 'Hiệu quả Kinh doanh'],
                     datasets: [{
-                        label: 'Phân loại Lợi ích',
-                        data: [3, 3],
-                        backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(22, 163, 74, 0.8)'],
-                        borderColor: ['rgba(59, 130, 246, 1)', 'rgba(22, 163, 74, 1)'],
-                        borderWidth: 1
+                        data: [55, 45],
+                        backgroundColor: ['#3b82f6', '#10b981'],
+                        borderWidth: 0
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
             });
+            window.chartInitialized = true;
         }
 
-        function updateHowItWorksDetail(key) {
-            const howStepButtons = document.querySelectorAll('.flow-step');
-            const howDetailTitle = document.getElementById('how-detail-title');
-            const howDetailText = document.getElementById('how-detail-text');
-            const data = howItWorksData[key];
-            howDetailTitle.textContent = data.title;
-            howDetailText.textContent = data.text;
-            
-            howStepButtons.forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`how-step-${key}`).classList.add('active');
-        }
-        
-        function updateAppDetail(key) {
-            const appTabButtons = document.querySelectorAll('.app-tab');
-            const appDetailTitle = document.getElementById('app-detail-title');
-            const appDetailText = document.getElementById('app-detail-text');
-            const data = appData[key];
-            appDetailTitle.textContent = data.title;
-            appDetailText.textContent = data.text;
-            
-            appTabButtons.forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`app-tab-${key}`).classList.add('active');
-        }
-        
-        // Initial setup for SPA navigation and content
-        document.addEventListener('DOMContentLoaded', () => {
-            const navButtons = document.querySelectorAll('.nav-button');
-            navButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    showSection(button.dataset.section);
-                });
-            });
+        // --- Interactive Flow Logic ---
+        const stepData = {
+            1: { title: "Bước 1: Nhận diện đầu vào", text: "Hệ thống tiếp nhận văn bản hoặc giọng nói. AI thực hiện tiền xử lý: chuẩn hóa văn bản, sửa lỗi chính tả và xác định ngôn ngữ." },
+            2: { title: "Bước 2: Phân tích (NLP)", text: "Natural Language Processing (NLP) bóc tách câu nói để hiểu 'Ý định' (Intent - Khách muốn gì?) và 'Thực thể' (Entity - Thông tin chi tiết như mã đơn, ngày tháng)." },
+            3: { title: "Bước 3: Xử lý dữ liệu", text: "Hệ thống truy vấn Cơ sở dữ liệu (Database) hoặc gọi API bên thứ 3 (CRM, hệ thống vận đơn) để lấy thông tin chính xác dựa trên phân tích ở Bước 2." },
+            4: { title: "Bước 4: Phản hồi", text: "NLG (Natural Language Generation) tạo ra câu trả lời tự nhiên, thân thiện nhất và gửi lại cho khách hàng chỉ trong mili giây." }
+        };
 
-            const howStepButtons = document.querySelectorAll('.flow-step');
-            howStepButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    updateHowItWorksDetail(button.dataset.key);
-                });
-            });
+        function showStepInfo(step) {
+            document.querySelectorAll('.step-card').forEach(el => el.classList.remove('border-blue-500', 'bg-blue-50'));
+            document.getElementById(`step-${step}`).classList.add('border-blue-500', 'bg-blue-50');
             
-            const appTabButtons = document.querySelectorAll('.app-tab');
-            appTabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    updateAppDetail(button.dataset.key);
-                });
-            });
-
-            // Default view
-            showSection('home');
-            updateHowItWorksDetail('nlp');
-            updateAppDetail('ecommerce');
-        });
-        
-        // Function to be called when the Chat tab is opened for the first time
-        function initChatboxModule() {
-            if (isChatInitialized) return;
-            isChatInitialized = true;
-            // The actual chat initialization is in the module script below
-            const script = document.getElementById('chat-module-script');
-            if (script && typeof script.initChat === 'function') {
-                 script.initChat();
-            }
+            const info = stepData[step];
+            document.getElementById('step-title').textContent = info.title;
+            document.getElementById('step-desc').textContent = info.text;
         }
     </script>
-    
-    <!-- FIREBASE AND CHAT LOGIC (MODULE SCRIPT FROM aihotro.html) -->
-    <script id="chat-module-script" type="module">
+
+    <!-- Firebase & Chat Module -->
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, collection, query, orderBy, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global variables provided by the Canvas environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        
-        // Cải thiện kiểm tra cấu hình Firebase
-        let firebaseConfig = {};
-        let initialAuthToken = null;
-        try {
-            const configString = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
-            firebaseConfig = JSON.parse(configString);
-            initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        } catch (e) {
-            console.error("Error parsing firebase config:", e);
-        }
+        window.initChatModule = async function() {
+            if (window.chatInitialized) return;
+            window.chatInitialized = true;
 
-        let db;
-        let auth;
-        let userId = 'anonymous';
-        const CHAT_COLLECTION = 'support_chats';
-        const CHAT_DOC_ID = 'chat_room'; 
+            const statusEl = document.getElementById('chat-status');
+            const errorEl = document.getElementById('error-message');
+            const inputEl = document.getElementById('chat-input');
+            const btnEl = document.getElementById('chat-send-btn');
+            const chatWindow = document.getElementById('chat-window');
 
-        // DOM elements for Chat
-        const chatWindow = document.getElementById('chat-window-chat');
-        const messageInput = document.getElementById('message-input-chat');
-        const chatForm = document.getElementById('chat-form-chat');
-        const sendButton = document.getElementById('send-button-chat');
-        const userIdDisplay = document.getElementById('user-id-display-chat');
-        const authStatus = document.getElementById('auth-status-chat');
-        
-        // --- Initialization and Authentication ---
+            // 1. ROBUST CONFIG LOADING
+            let firebaseConfig = null;
+            let appId = 'default-app';
+            let initialToken = null;
 
-        async function initializeFirebase() {
             try {
-                // Kiểm tra xem cấu hình có hợp lệ không (ít nhất là có apiKey)
-                if (!firebaseConfig || !firebaseConfig.apiKey) {
-                    console.error("Firebase config is missing or invalid. Cannot initialize Firestore.");
-                    authStatus.textContent = "Lỗi kết nối: Không tìm thấy cấu hình Firebase.";
-                    authStatus.classList.remove('hidden', 'text-yellow-500');
-                    authStatus.classList.add('text-red-500');
-                    sendButton.disabled = true;
-                    return;
+                // Check if global variable exists
+                if (typeof __firebase_config !== 'undefined') {
+                    firebaseConfig = JSON.parse(__firebase_config);
                 }
-                
+                if (typeof __app_id !== 'undefined') {
+                    appId = __app_id;
+                }
+                if (typeof __initial_auth_token !== 'undefined') {
+                    initialToken = __initial_auth_token;
+                }
+            } catch (e) {
+                console.error("Config parsing error:", e);
+                errorEl.textContent = "Lỗi phân tích cấu hình hệ thống.";
+                errorEl.classList.remove('hidden');
+                statusEl.textContent = "Lỗi Cấu hình";
+                statusEl.classList.replace('bg-gray-800', 'bg-red-600');
+                return;
+            }
+
+            // 2. VALIDATION
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                console.error("Firebase config missing");
+                statusEl.textContent = "Thiếu Cấu hình";
+                statusEl.classList.replace('bg-gray-800', 'bg-red-600');
+                errorEl.innerHTML = "Không tìm thấy cấu hình Firebase.<br>Vui lòng đảm bảo môi trường chạy (Canvas) đã cung cấp biến __firebase_config.";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            // 3. INITIALIZE FIREBASE
+            let db, auth;
+            try {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
-                
-                authStatus.textContent = "Đang xác thực...";
-                authStatus.classList.remove('hidden', 'text-red-500');
-                authStatus.classList.add('text-yellow-500');
+                statusEl.textContent = "Đang xác thực...";
+                statusEl.classList.replace('bg-gray-800', 'bg-yellow-600');
+            } catch (e) {
+                console.error("Firebase init error:", e);
+                statusEl.textContent = "Lỗi Khởi tạo";
+                statusEl.classList.replace('bg-yellow-600', 'bg-red-600');
+                return;
+            }
 
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
+            // 4. AUTHENTICATION
+            try {
+                if (initialToken) {
+                    await signInWithCustomToken(auth, initialToken);
                 } else {
                     await signInAnonymously(auth);
                 }
-
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        userIdDisplay.textContent = `ID: ${userId.substring(0, 8)}...`;
-                        sendButton.disabled = false;
-                        
-                        // Start listening for messages
-                        listenForChatMessages();
-                        
-                        authStatus.textContent = "Đã kết nối và sẵn sàng chat.";
-                        authStatus.classList.remove('text-yellow-500', 'text-red-500');
-                        authStatus.classList.add('text-green-500');
-                        setTimeout(() => authStatus.classList.add('hidden'), 3000);
-                    } else {
-                        console.error("Authentication failed. Chat is disabled.");
-                        authStatus.textContent = "Lỗi xác thực. Không thể chat.";
-                        authStatus.classList.remove('hidden', 'text-yellow-500');
-                        authStatus.classList.add('text-red-500');
-                        sendButton.disabled = true;
-                    }
-                });
-
-            } catch (error) {
-                console.error("Firebase initialization or authentication failed:", error);
-                authStatus.textContent = `Lỗi nghiêm trọng: ${error.message}`;
-                authStatus.classList.remove('hidden', 'text-yellow-500');
-                authStatus.classList.add('text-red-500');
-                sendButton.disabled = true;
+            } catch (e) {
+                console.error("Auth error:", e);
+                statusEl.textContent = "Lỗi Đăng nhập";
+                statusEl.classList.replace('bg-yellow-600', 'bg-red-600');
+                errorEl.textContent = "Không thể xác thực người dùng ẩn danh.";
+                errorEl.classList.remove('hidden');
+                return;
             }
-        }
 
-        // --- Chat Rendering Functions ---
+            // 5. AUTH STATE LISTENER & CHAT LOGIC
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    statusEl.textContent = "Đã kết nối (ID: " + user.uid.substring(0,6) + ")";
+                    statusEl.classList.replace('bg-yellow-600', 'bg-green-600');
+                    inputEl.disabled = false;
+                    btnEl.disabled = false;
+                    inputEl.placeholder = "Nhập tin nhắn...";
+                    
+                    setupChatListeners(db, user.uid, appId);
+                } else {
+                    statusEl.textContent = "Mất kết nối";
+                    statusEl.classList.replace('bg-green-600', 'bg-red-600');
+                    inputEl.disabled = true;
+                    btnEl.disabled = true;
+                }
+            });
+        };
 
-        function formatTimestamp(timestamp) {
-            if (!timestamp) return '';
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-            return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-        }
-
-        function renderMessage(message) {
-            const isUser = message.sender === 'user';
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message-chat text-sm ${isUser ? 'user-message-chat' : 'ai-message-chat'}`;
-            messageDiv.innerHTML = `
-                <p>${message.text}</p>
-                <span class="text-xs opacity-75 mt-1 block text-right">${formatTimestamp(message.timestamp)}</span>
-            `;
-            chatWindow.appendChild(messageDiv);
-        }
-
-        function scrollToBottom() {
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
-
-        // --- Firestore Listener ---
-
-        function listenForChatMessages() {
-            const messagesCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', CHAT_COLLECTION, CHAT_DOC_ID, 'messages');
+        function setupChatListeners(db, userId, appId) {
+            const chatWindow = document.getElementById('chat-window');
+            const collectionPath = ['artifacts', appId, 'public', 'data', 'support_chats', 'global_room', 'messages'];
             
-            const q = query(messagesCollectionRef, orderBy('timestamp', 'asc'));
+            // Helper to construct collection ref from array path
+            let messagesRef = collection(db, ...collectionPath);
+
+            const q = query(messagesRef, orderBy('timestamp', 'asc'));
 
             onSnapshot(q, (snapshot) => {
-                chatWindow.innerHTML = ''; // Clear existing messages
-                
-                // Re-render the initial welcome message
+                // Keep the first welcome message if we want, or clear all. Let's clear all except welcome for simplicity, or re-render.
+                // Strategy: Clear and re-render all to ensure order.
                 chatWindow.innerHTML = `
-                    <div class="ai-message-chat text-sm mb-4">
-                        Chào mừng! Tôi là trợ lý AI ảo của bạn. Hãy cho tôi biết bạn cần hỗ trợ về vấn đề gì hôm nay.
+                    <div class="chat-msg chat-msg-ai">
+                        👋 Xin chào! Tôi là trợ lý ảo AI. Tôi có thể giúp gì cho bạn hôm nay?
+                        <br><span class="text-xs text-gray-400 mt-1 block">Hệ thống</span>
                     </div>
                 `;
 
                 snapshot.docs.forEach(doc => {
-                    const message = doc.data();
-                    renderMessage(message);
+                    const data = doc.data();
+                    renderMessage(data.text, data.sender, data.timestamp);
                 });
-                scrollToBottom();
+                chatWindow.scrollTop = chatWindow.scrollHeight;
             }, (error) => {
-                console.error("Error listening to chat messages:", error);
-                authStatus.textContent = `Lỗi lắng nghe: ${error.message}`;
-                authStatus.classList.remove('hidden');
+                console.error("Snapshot error:", error);
             });
-        }
-        
-        // --- AI Response Simulation/Integration ---
-        
-        async function getAiResponse(userMessage) {
-            // --- Nơi tích hợp Gemini API thực tế ---
-            
-            // Hiện tại, chúng ta sử dụng phản hồi mô phỏng:
-            const lowerCaseMsg = userMessage.toLowerCase();
-            let aiText = "Tôi xin lỗi, tôi chưa thể hiểu rõ yêu cầu của bạn. Vui lòng cung cấp thêm chi tiết hoặc thử các từ khóa như 'đơn hàng', 'hóa đơn', 'thanh toán'.";
 
-            if (lowerCaseMsg.includes("đơn hàng") || lowerCaseMsg.includes("mua")) {
-                aiText = "Để kiểm tra trạng thái đơn hàng, vui lòng cung cấp Mã đơn hàng và Tên khách hàng của bạn. Tôi sẽ kiểm tra ngay lập tức.";
-            } else if (lowerCaseMsg.includes("lỗi") || lowerCaseMsg.includes("sự cố")) {
-                aiText = "Chúng tôi rất xin lỗi vì sự cố này. Vui lòng mô tả chi tiết vấn đề bạn đang gặp phải. Tôi có thể chuyển bạn đến nhân viên hỗ trợ kỹ thuật nếu cần.";
-            } else if (lowerCaseMsg.includes("cảm ơn") || lowerCaseMsg.includes("tạm biệt")) {
-                 aiText = "Không có gì, tôi rất sẵn lòng giúp đỡ! Chúc bạn một ngày tốt lành. Nếu bạn có bất kỳ câu hỏi nào khác, đừng ngần ngại quay lại.";
-            }
-            // --- Kết thúc mô phỏng ---
-
-            return aiText;
-        }
-
-        // --- Sending Message Logic ---
-
-        let isAiTyping = false;
-        
-        function showTypingIndicator() {
-            const typingDiv = document.createElement('div');
-            typingDiv.id = 'typing-indicator';
-            typingDiv.className = 'ai-message-chat text-sm flex items-center mb-4';
-            typingDiv.innerHTML = `
-                <span>AI đang trả lời</span>
-                <span class="loading-dot ml-2"></span>
-                <span class="loading-dot"></span>
-                <span class="loading-dot"></span>
-            `;
-            chatWindow.appendChild(typingDiv);
-            scrollToBottom();
-        }
-
-        function hideTypingIndicator() {
-            const indicator = document.getElementById('typing-indicator');
-            if (indicator) {
-                indicator.remove();
-            }
-        }
-        
-        async function sendMessage(text, sender) {
-            const messageData = {
-                text: text,
-                sender: sender,
-                timestamp: serverTimestamp() // Use server timestamp for accurate ordering
-            };
-
-            const messagesCollectionRef = collection(db, 'artifacts', appId, 'public', 'data', CHAT_COLLECTION, CHAT_DOC_ID, 'messages');
-            
-            try {
-                await addDoc(messagesCollectionRef, messageData);
-            } catch (error) {
-                console.error("Lỗi khi gửi tin nhắn:", error);
-                authStatus.textContent = `Lỗi gửi tin: ${error.message}`;
-                authStatus.classList.remove('hidden');
-            }
-        }
-
-        // Add event listener only when chat module is active
-        function setupChatFormListener() {
-            chatForm.addEventListener('submit', async (e) => {
+            // SEND LOGIC
+            const form = document.getElementById('chat-form');
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const userMessage = messageInput.value.trim();
+                const input = document.getElementById('chat-input');
+                const text = input.value.trim();
+                if (!text) return;
 
-                if (!userMessage || isAiTyping || sendButton.disabled) {
-                    return;
-                }
-
-                await sendMessage(userMessage, 'user');
+                input.value = '';
                 
-                messageInput.value = '';
-                sendButton.disabled = true;
-                isAiTyping = true;
+                // 1. User Message
+                await addDoc(messagesRef, {
+                    text: text,
+                    sender: 'user',
+                    timestamp: serverTimestamp()
+                });
+
+                // 2. Simulate AI typing
+                const typingId = showTyping();
                 
-                showTypingIndicator();
-
-                try {
-                    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 500));
-                    
-                    const aiResponseText = await getAiResponse(userMessage);
-
-                    await sendMessage(aiResponseText, 'ai');
-
-                } catch (error) {
-                    console.error("Lỗi khi nhận phản hồi AI:", error);
-                    await sendMessage("Xin lỗi, hệ thống AI đang gặp sự cố. Vui lòng thử lại sau.", 'ai');
-                } finally {
-                    hideTypingIndicator();
-                    sendButton.disabled = false;
-                    isAiTyping = false;
-                }
+                // 3. Simulate AI Response (Client-side logic for demo)
+                setTimeout(async () => {
+                    removeTyping(typingId);
+                    const response = generateMockResponse(text);
+                    await addDoc(messagesRef, {
+                        text: response,
+                        sender: 'ai',
+                        timestamp: serverTimestamp()
+                    });
+                }, 1500);
             });
         }
-        
-        // Export init function to be called from the main script
-        document.getElementById('chat-module-script').initChat = () => {
-             // Chỉ khởi tạo Firebase nếu cấu hình có vẻ hợp lệ
-             if (firebaseConfig && firebaseConfig.apiKey) {
-                initializeFirebase();
-                setupChatFormListener();
-             } else {
-                 console.error("Chat initialization skipped: Firebase config is missing or invalid.");
-                 authStatus.textContent = "Lỗi nghiêm trọng: Vui lòng cung cấp cấu hình Firebase.";
-                 authStatus.classList.remove('hidden', 'text-yellow-500');
-                 authStatus.classList.add('text-red-500');
-                 sendButton.disabled = true;
-             }
-        };
 
+        function renderMessage(text, sender, timestamp) {
+            const chatWindow = document.getElementById('chat-window');
+            const div = document.createElement('div');
+            const isUser = sender === 'user';
+            div.className = `chat-msg ${isUser ? 'chat-msg-user' : 'chat-msg-ai'}`;
+            
+            let timeStr = '';
+            if (timestamp) {
+                timeStr = new Date(timestamp.seconds * 1000).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
+            }
+
+            div.innerHTML = `${text}<br><span class="text-xs opacity-70 mt-1 block text-right">${timeStr}</span>`;
+            chatWindow.appendChild(div);
+        }
+
+        function showTyping() {
+            const chatWindow = document.getElementById('chat-window');
+            const div = document.createElement('div');
+            const id = 'typing-' + Date.now();
+            div.id = id;
+            div.className = 'chat-msg chat-msg-ai';
+            div.innerHTML = `
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+            `;
+            chatWindow.appendChild(div);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            return id;
+        }
+
+        function removeTyping(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function generateMockResponse(input) {
+            input = input.toLowerCase();
+            if (input.includes('chào') || input.includes('hi')) return "Chào bạn! Tôi có thể giúp gì cho bạn về đơn hàng hoặc dịch vụ?";
+            if (input.includes('giá') || input.includes('phí')) return "Sản phẩm của chúng tôi có nhiều mức giá khác nhau. Bạn quan tâm đến gói Cơ bản hay Nâng cao?";
+            if (input.includes('lỗi') || input.includes('không được')) return "Tôi rất tiếc về sự cố này. Bạn vui lòng cung cấp mã lỗi hoặc mô tả chi tiết hơn để tôi kiểm tra nhé.";
+            if (input.includes('cảm ơn')) return "Không có gì! Chúc bạn một ngày tốt lành.";
+            return "Tôi đã ghi nhận câu hỏi của bạn. Nhân viên hỗ trợ sẽ phản hồi chi tiết hơn trong giây lát.";
+        }
     </script>
 </body>
 </html>
