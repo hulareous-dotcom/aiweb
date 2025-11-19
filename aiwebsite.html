@@ -281,7 +281,7 @@
             </p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="stat-card">
-                    <div class="text-4xl mb-3"⚠️</div>
+                    <div class="text-4xl mb-3">⚠️</div>
                     <h3 class="text-xl font-semibold text-gray-800 mb-2">Vấn đề Phức tạp</h3>
                     <p class="text-gray-600">Chatbot gặp khó khăn khi xử lý các vấn đề mới, độc nhất hoặc đòi hỏi sự phán đoán phức tạp mà chưa được huấn luyện.</p>
                 </div>
@@ -478,8 +478,17 @@
 
         // Global variables provided by the Canvas environment
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // Cải thiện kiểm tra cấu hình Firebase
+        let firebaseConfig = {};
+        let initialAuthToken = null;
+        try {
+            const configString = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+            firebaseConfig = JSON.parse(configString);
+            initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        } catch (e) {
+            console.error("Error parsing firebase config:", e);
+        }
 
         let db;
         let auth;
@@ -499,10 +508,13 @@
 
         async function initializeFirebase() {
             try {
-                if (Object.keys(firebaseConfig).length === 0) {
-                    console.error("Firebase config is missing. Cannot initialize Firestore.");
-                    authStatus.textContent = "Lỗi: Không tìm thấy cấu hình Firebase.";
-                    authStatus.classList.remove('hidden');
+                // Kiểm tra xem cấu hình có hợp lệ không (ít nhất là có apiKey)
+                if (!firebaseConfig || !firebaseConfig.apiKey) {
+                    console.error("Firebase config is missing or invalid. Cannot initialize Firestore.");
+                    authStatus.textContent = "Lỗi kết nối: Không tìm thấy cấu hình Firebase.";
+                    authStatus.classList.remove('hidden', 'text-yellow-500');
+                    authStatus.classList.add('text-red-500');
+                    sendButton.disabled = true;
                     return;
                 }
                 
@@ -530,7 +542,7 @@
                         listenForChatMessages();
                         
                         authStatus.textContent = "Đã kết nối và sẵn sàng chat.";
-                        authStatus.classList.remove('text-yellow-500');
+                        authStatus.classList.remove('text-yellow-500', 'text-red-500');
                         authStatus.classList.add('text-green-500');
                         setTimeout(() => authStatus.classList.add('hidden'), 3000);
                     } else {
@@ -705,8 +717,17 @@
         
         // Export init function to be called from the main script
         document.getElementById('chat-module-script').initChat = () => {
-             initializeFirebase();
-             setupChatFormListener();
+             // Chỉ khởi tạo Firebase nếu cấu hình có vẻ hợp lệ
+             if (firebaseConfig && firebaseConfig.apiKey) {
+                initializeFirebase();
+                setupChatFormListener();
+             } else {
+                 console.error("Chat initialization skipped: Firebase config is missing or invalid.");
+                 authStatus.textContent = "Lỗi nghiêm trọng: Vui lòng cung cấp cấu hình Firebase.";
+                 authStatus.classList.remove('hidden', 'text-yellow-500');
+                 authStatus.classList.add('text-red-500');
+                 sendButton.disabled = true;
+             }
         };
 
     </script>
